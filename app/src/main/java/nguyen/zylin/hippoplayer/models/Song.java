@@ -1,5 +1,7 @@
 package nguyen.zylin.hippoplayer.models;
 
+import android.net.Uri;
+
 public class Song {
     private long id;
     private String title;
@@ -7,14 +9,16 @@ public class Song {
     private String album;
     private String length;
     private String url;
+    private Uri coverUri;
 
-    public Song(long id, String title, String artist, String album, String length, String url) {
+    public Song(long id, String title, String artist, String album, String length, String url, Uri coverUri) {
         this.id = id;
         this.title = title;
         this.artist = artist;
         this.album = album;
         this.length = length;
         this.url = url;
+        this.coverUri = coverUri;
     }
 
     public long getId() {
@@ -63,5 +67,13 @@ public class Song {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Uri getCoverUri() {
+        return coverUri;
+    }
+
+    public void setCoverUri(Uri coverUri) {
+        this.coverUri = coverUri;
     }
 }

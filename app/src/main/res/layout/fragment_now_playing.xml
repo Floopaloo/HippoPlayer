@@ -2,28 +2,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.PlayerActivity"
-    android:orientation="vertical"
-    android:background="@drawable/bg_gradient">
+    tools:context=".activity.NowPlayingActivity$PlaceholderFragment"
+    android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize">
 
-    </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2.5">
+        android:layout_weight="3">
 
         <ImageView
             android:id="@+id/song_album_cover"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="30dp"
-            android:scaleType="centerInside"
+            android:scaleType="fitCenter"
             android:src="@color/clouds"/>
 
     </RelativeLayout>
@@ -34,6 +30,7 @@
         android:orientation="vertical">
 
         <android.support.v7.widget.AppCompatSeekBar
+            android:visibility="gone"
             android:id="@+id/seek_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,6 +43,7 @@
             android:layout_marginVertical="5dp"
             android:textSize="28sp"
             android:gravity="center"
+            android:textColor="@color/clouds"
             android:text="Song title"/>
         <LinearLayout
             android:layout_width="match_parent"
@@ -58,13 +56,14 @@
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
                 android:textSize="18sp"
+                android:textColor="@color/clouds"
                 android:gravity="center"
                 android:text="Artist"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
-                android:textColor="@color/dark_grey"
+                android:textColor="@color/clouds"
                 android:layout_marginHorizontal="5sp"
                 android:text="•"/>
             <TextView
@@ -73,6 +72,7 @@
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
                 android:textSize="18sp"
+                android:textColor="@color/clouds"
                 android:gravity="center"
                 android:text="Album"/>
         </LinearLayout>

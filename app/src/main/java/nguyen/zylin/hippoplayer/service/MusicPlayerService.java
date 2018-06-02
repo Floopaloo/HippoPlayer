@@ -15,14 +15,41 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import nguyen.zylin.hippoplayer.activity.PlayerActivity;
 import nguyen.zylin.hippoplayer.models.Song;
 
 public class MusicPlayerService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener{
+        MediaPlayer.OnCompletionListener {
+
+    private static MusicPlayerService musicPlayerService;
+    public static MusicPlayerService getInstance(){
+        if (musicPlayerService == null) {
+            musicPlayerService = new MusicPlayerService();
+        }
+        return musicPlayerService;
+    }
+
+    public interface PlayingStateListener {
+
+        void isPlaying(boolean isPlaying);
+
+        void atCurrentSong(Song currentSong);
+    }
+
+    private PlayingStateListener mPlayingStateListener;
+
+    public void setPlayingStateListener(PlayingStateListener mPlayingStateListener) {
+        this.mPlayingStateListener = mPlayingStateListener;
+    }
+
+    public void notifyActivity(){
+        mPlayingStateListener.atCurrentSong(playSong);
+        mPlayingStateListener.isPlaying(isPlaying);
+    }
 
     private static final String TAG = "MusicPlayerService";
-    
+
     private MediaPlayer mMediaPlayer;
     private ArrayList<Song> mSongList;
     private int mSongPosition;
@@ -85,9 +112,15 @@ public class MusicPlayerService extends Service implements
         this.mSongPosition = position;
     }
 
+    private Song playSong;
+
+    public Song getCurrentSong() {
+        return playSong;
+    }
+    private boolean isPlaying;
     public void playSong() {
         mMediaPlayer.reset();
-        Song playSong = mSongList.get(mSongPosition);
+        playSong = mSongList.get(mSongPosition);
         long currentSong = playSong.getId();
         Uri songUri = ContentUris.withAppendedId(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -99,7 +132,70 @@ public class MusicPlayerService extends Service implements
             Log.e(TAG, "playSong: error setting data source", e);
         }
         mMediaPlayer.prepareAsync();
+
+        isPlaying = true;
+        mPlayingStateListener.isPlaying(isPlaying);
+        mPlayingStateListener.atCurrentSong(playSong);
     }
+
+    private int length = 0;
+
+    public void pauseSong() {
+        if ((mMediaPlayer != null) && mMediaPlayer.isPlaying()) {
+            mMediaPlayer.pause();
+            length = mMediaPlayer.getCurrentPosition();
+            isPlaying = false;
+            mPlayingStateListener.isPlaying(isPlaying);
+        }
+    }
+
+    public void resumeSong() {
+        if ((mMediaPlayer != null) && !mMediaPlayer.isPlaying()) {
+            mMediaPlayer.seekTo(length);
+            mMediaPlayer.start();
+            isPlaying = true;
+            mPlayingStateListener.isPlaying(isPlaying);
+        }
+    }
+
+    public void nextSong() {
+        if (mSongPosition < mSongList.size() - 1) {
+            mSongPosition++;
+        } else {
+            mSongPosition = 0;
+        }
+        setSongToPlay(mSongPosition);
+        playSong();
+    }
+
+    public void prevSong() {
+        if (mSongPosition > 0) {
+            mSongPosition--;
+        } else {
+            mSongPosition = mSongList.size() - 1;
+        }
+        setSongToPlay(mSongPosition);
+        playSong();
+    }
+
+//    public void moveToNowPlaying(){
+////        PlayerActivity.
+//    }
+//
+//    @Override
+//    public void onNext() {
+//
+//    }
+//
+//    @Override
+//    public void onPlayPause() {
+//
+//    }
+//
+//    @Override
+//    public void onPrevious() {
+//
+//    }
 
 
 

@@ -1,15 +1,19 @@
-package nguyen.zylin.hippoplayer.activity;
+package nguyen.zylin.hippoplayer.fragment;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,34 +22,11 @@ import nguyen.zylin.hippoplayer.R;
 import nguyen.zylin.hippoplayer.models.Song;
 import nguyen.zylin.hippoplayer.service.MusicPlayerService;
 
-public class PlayerActivity extends AppCompatActivity implements MusicPlayerService.PlayingStateListener,
-        View.OnClickListener {
 
-    private static final String TAG = "PlayerActivity";
+public class FragmentNowPlaying extends Fragment
+        implements View.OnClickListener, MusicPlayerService.PlayingStateListener{
 
-    private static PlayerActivity instance;
-    public static PlayerActivity getInstance(){
-        if (instance == null) {
-            instance=new PlayerActivity();
-        }
-        return instance;
-    }
-
-    public interface OnControlListener {
-
-        void onNext();
-
-        void onPlayPause();
-
-        void onPrevious();
-    }
-
-    OnControlListener onControlListener;
-
-    public void setOnControlListener(OnControlListener onControlListener) {
-        this.onControlListener = onControlListener;
-    }
-
+    private static final String TAG = "FragmentNowPlaying";
     ImageView mAlbumCover;
 
     TextView mSongTitle, mSongArtist, mSongAlbum;
@@ -54,32 +35,56 @@ public class PlayerActivity extends AppCompatActivity implements MusicPlayerServ
     MusicPlayerService mMusicPlayerService;
     private boolean mMusicBound = false;
     Intent mPlayIntent;
+    Context context;
 
+    public FragmentNowPlaying() {
+    }
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player);
-        mAlbumCover = findViewById(R.id.song_album_cover);
-        mSongTitle = findViewById(R.id.tv_song_title);
-        mSongArtist = findViewById(R.id.tv_song_artist);
-        mSongAlbum = findViewById(R.id.tv_song_album);
-        mSeekBar = findViewById(R.id.seek_bar);
-        mBtnPre = findViewById(R.id.btn_previous);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_now_playing, container, false);
+        context = view.getContext();
+        mAlbumCover = view.findViewById(R.id.song_album_cover);
+        mSongTitle = view.findViewById(R.id.tv_song_title);
+        mSongArtist = view.findViewById(R.id.tv_song_artist);
+        mSongAlbum = view.findViewById(R.id.tv_song_album);
+
+        mSeekBar = view.findViewById(R.id.seek_bar);
+        mSeekBar.setVisibility(View.GONE);
+
+        mBtnPre = view.findViewById(R.id.btn_previous);
         mBtnPre.setOnClickListener(this);
-        mBtnPlay = findViewById(R.id.btn_play_pause);
+        mBtnPlay = view.findViewById(R.id.btn_play_pause);
         mBtnPlay.setOnClickListener(this);
-        mBtnNext = findViewById(R.id.btn_next);
+        mBtnNext = view.findViewById(R.id.btn_next);
         mBtnNext.setOnClickListener(this);
 
+        return view;
     }
+
     @Override
-    protected void onStart() {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
         super.onStart();
         if (mPlayIntent == null) {
-            mPlayIntent = new Intent(this, MusicPlayerService.class);
-            bindService(mPlayIntent, mMusicPlayerServiceConnection, Context.BIND_AUTO_CREATE);
-            startService(mPlayIntent);
+            mPlayIntent = new Intent(context, MusicPlayerService.class);
+            context.bindService(mPlayIntent, mMusicPlayerServiceConnection, Context.BIND_AUTO_CREATE);
+            context.startService(mPlayIntent);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mMusicBound) {
+            context.unbindService(mMusicPlayerServiceConnection);
+            mMusicBound = false;
         }
     }
 
@@ -89,9 +94,9 @@ public class PlayerActivity extends AppCompatActivity implements MusicPlayerServ
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicPlayerService.MusicBinder musicBinder = ((MusicPlayerService.MusicBinder) service);
             mMusicPlayerService = musicBinder.getService();
-//            mMusicPlayerService.setPlayList(mSongList);
             mMusicBound = true;
-            mMusicPlayerService.setPlayingStateListener(PlayerActivity.this);
+            mMusicPlayerService.setPlayingStateListener(FragmentNowPlaying.this);
+            mMusicPlayerService.notifyActivity();
         }
 
         @Override
@@ -113,6 +118,9 @@ public class PlayerActivity extends AppCompatActivity implements MusicPlayerServ
 
     @Override
     public void atCurrentSong(Song currentSong) {
+
+        currentSongListener.sendSong(currentSong);
+
         mSongTitle.setText(currentSong.getTitle());
         mSongArtist.setText(currentSong.getArtist());
         mSongAlbum.setText(currentSong.getAlbum());
@@ -128,12 +136,10 @@ public class PlayerActivity extends AppCompatActivity implements MusicPlayerServ
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_previous:
-//                onControlListener.onPrevious();
                 mMusicPlayerService.prevSong();
                 break;
 
             case R.id.btn_play_pause:
-//                onControlListener.onPlayPause();
                 if (isPlayingFlag) {
                     mMusicPlayerService.pauseSong();
                 } else {
@@ -142,10 +148,19 @@ public class PlayerActivity extends AppCompatActivity implements MusicPlayerServ
                 break;
 
             case R.id.btn_next:
-//                onControlListener.onNext();
                 mMusicPlayerService.nextSong();
                 break;
         }
     }
 
+    public interface CurrentSongListener{
+        void sendSong(Song song);
+    }
+    CurrentSongListener currentSongListener;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        currentSongListener = ((CurrentSongListener) context);
+    }
 }

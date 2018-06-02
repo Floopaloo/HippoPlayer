@@ -12,7 +12,23 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize">
-
+        <ImageView
+            android:layout_width="121dp"
+            android:layout_height="20dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/title"/>
+        <ImageButton
+            android:id="@+id/ibtn_info"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginHorizontal="16dp"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="centerInside"
+            android:src="@drawable/logo_64x64"/>
     </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView

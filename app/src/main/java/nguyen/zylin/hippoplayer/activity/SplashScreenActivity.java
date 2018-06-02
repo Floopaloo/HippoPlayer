@@ -19,35 +19,36 @@ import nguyen.zylin.hippoplayer.R;
 public class SplashScreenActivity extends AppCompatActivity {
 
     public static final int SPLASH_SCREEN_DURATION = 500;
+    private boolean havePermisstion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
-        scheduleSplashScreen();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        havePermisstion = checkAndRequestPermissions();
+        if (havePermisstion) {
+            scheduleSplashScreen();
+        } else {
+            Toast.makeText(this, "I can't load song from your library 😢", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void scheduleSplashScreen() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                processAfterDelay();
+                routeToAppropriatePage(MainActivity.class);
             }
         }, SPLASH_SCREEN_DURATION);
     }
 
-    private void processAfterDelay() {
-
-        //TODO: Check & grand permission here
-        if (checkAndRequestPermissions()) {
-            routeToAppropriatePage(MainActivity.class);
-        } else {
-            Toast.makeText(this, "I can't load song from your library 😢", Toast.LENGTH_LONG).show();
-        }
-
-    }
-
     private void routeToAppropriatePage(Class cls) {
+        Toast.makeText(this, "Just relax 😉", Toast.LENGTH_LONG).show();
         startActivity(new Intent(this, cls));
         finish();
     }
@@ -79,8 +80,8 @@ public class SplashScreenActivity extends AppCompatActivity {
                     listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), MY_PERMISSIONS_REQUEST);
 
             return false;
+        } else {
+            return true;
         }
-
-        return true;
     }
 }
