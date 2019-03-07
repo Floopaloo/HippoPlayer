@@ -3,4 +3,3 @@
 <img width=40% src="https://raw.githubusercontent.com/Floopaloo/HippoPlayer/master/Screenshot/Screenshot_20180603-060240.png"/>
 <img width=40% src="https://raw.githubusercontent.com/Floopaloo/HippoPlayer/master/Screenshot/Screenshot_20180603-060255.png"/>
 <img width=40% src="https://raw.githubusercontent.com/Floopaloo/HippoPlayer/master/Screenshot/Screenshot_20180603-060309.png"/>
-<img width=40% src="https://raw.githubusercontent.com/Floopaloo/HippoPlayer/master/Screenshot/Screenshot_20180603-060556.png"/>
